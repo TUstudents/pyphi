@@ -1,7 +1,38 @@
 # .gitignore
+
+# Git worktrees
+.worktrees/
+
+# Build artifacts
 *.egg-info/
 dist/
-docs/build/
+build/
+
+# uv
+.venv/
+uv.lock
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Docs
+docs/build/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment
+.env
