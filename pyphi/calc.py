@@ -4602,14 +4602,24 @@ def cca(X, Y, tol=1e-6, max_iter=1000):
                 - ``Pcv`` (ndarray): Covariant loadings (predictive loadings in OPLS sense).
                 - ``Wcv`` (ndarray): Covariant weights.
     """
+    # Drop rows with NaN so covariance matrices are finite
+    valid = np.all(np.isfinite(X), axis=1) & np.all(np.isfinite(Y), axis=1)
+    X = X[valid]; Y = Y[valid]
     X = X - np.mean(X, axis=0); Y = Y - np.mean(Y, axis=0)
     Sigma_XX = X.T @ X; Sigma_YY = Y.T @ Y; Sigma_XY = X.T @ Y
     w_x = np.random.rand(X.shape[1]); w_y = np.random.rand(Y.shape[1])
     w_x /= np.linalg.norm(w_x); w_y /= np.linalg.norm(w_y)
+    correlation = 0.0
     for iteration in range(max_iter):
         w_x_old = w_x.copy(); w_y_old = w_y.copy()
-        w_x = np.linalg.solve(Sigma_XX, Sigma_XY @ w_y); w_x /= np.linalg.norm(w_x)
-        w_y = np.linalg.solve(Sigma_YY, Sigma_XY.T @ w_x); w_y /= np.linalg.norm(w_y)
+        w_x_new = np.linalg.lstsq(Sigma_XX, Sigma_XY @ w_y, rcond=None)[0]
+        nrm = np.linalg.norm(w_x_new)
+        if nrm < 1e-12: break
+        w_x = w_x_new / nrm
+        w_y_new = np.linalg.lstsq(Sigma_YY, Sigma_XY.T @ w_x, rcond=None)[0]
+        nrm = np.linalg.norm(w_y_new)
+        if nrm < 1e-12: break
+        w_y = w_y_new / nrm
         correlation = w_x.T @ Sigma_XY @ w_y
         if np.linalg.norm(w_x - w_x_old) < tol and np.linalg.norm(w_y - w_y_old) < tol:
             break
@@ -4617,16 +4627,25 @@ def cca(X, Y, tol=1e-6, max_iter=1000):
 
 def cca_multi(X, Y, num_components=1, tol=1e-6, max_iter=1000):
     """CCA with multiple canonical variates."""
+    valid = np.all(np.isfinite(X), axis=1) & np.all(np.isfinite(Y), axis=1)
+    X = X[valid]; Y = Y[valid]
     X = X - np.mean(X, axis=0); Y = Y - np.mean(Y, axis=0)
     correlations = []; W_X = []; W_Y = []
     for component in range(num_components):
         Sigma_XX = X.T @ X; Sigma_YY = Y.T @ Y; Sigma_XY = X.T @ Y
         w_x = np.random.rand(X.shape[1]); w_y = np.random.rand(Y.shape[1])
         w_x /= np.linalg.norm(w_x); w_y /= np.linalg.norm(w_y)
+        correlation = 0.0
         for iteration in range(max_iter):
             w_x_old = w_x.copy(); w_y_old = w_y.copy()
-            w_x = np.linalg.solve(Sigma_XX, Sigma_XY @ w_y); w_x /= np.linalg.norm(w_x)
-            w_y = np.linalg.solve(Sigma_YY, Sigma_XY.T @ w_x); w_y /= np.linalg.norm(w_y)
+            w_x_new = np.linalg.lstsq(Sigma_XX, Sigma_XY @ w_y, rcond=None)[0]
+            nrm = np.linalg.norm(w_x_new)
+            if nrm < 1e-12: break
+            w_x = w_x_new / nrm
+            w_y_new = np.linalg.lstsq(Sigma_YY, Sigma_XY.T @ w_x, rcond=None)[0]
+            nrm = np.linalg.norm(w_y_new)
+            if nrm < 1e-12: break
+            w_y = w_y_new / nrm
             correlation = w_x.T @ Sigma_XY @ w_y
             if np.linalg.norm(w_x - w_x_old) < tol and np.linalg.norm(w_y - w_y_old) < tol:
                 break
