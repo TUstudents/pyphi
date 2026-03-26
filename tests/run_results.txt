@@ -1,0 +1,258 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /home/tensor/projects/pyphi/.worktrees/pytest-suite/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/tensor/projects/pyphi/.worktrees/pytest-suite
+configfile: pyproject.toml
+testpaths: tests
+collecting ... collected 133 items
+
+tests/test_batch.py::TestBatchUtilities::test_unique_preserves_order PASSED [  0%]
+tests/test_batch.py::TestBatchUtilities::test_mean_ignores_nan PASSED    [  1%]
+tests/test_batch.py::TestBatchUtilities::test_clean_empty_rows_removes_all_nan PASSED [  2%]
+tests/test_batch.py::TestAlignment::test_simple_align_sample_count PASSED [  3%]
+tests/test_batch.py::TestAlignment::test_simple_align_batch_count PASSED [  3%]
+tests/test_batch.py::TestAlignment::test_phase_align_sample_count PASSED [  4%]
+tests/test_batch.py::TestUnfoldRefold::test_unfold_shape PASSED          [  5%]
+tests/test_batch.py::TestUnfoldRefold::test_roundtrip PASSED             [  6%]
+tests/test_batch.py::TestMPCA::test_model_keys_present PASSED            [  6%]
+tests/test_batch.py::TestMPCA::test_score_shape PASSED                   [  7%]
+tests/test_batch.py::TestMPCA::test_r2x_in_range PASSED                  [  8%]
+tests/test_batch.py::TestMPLS::test_model_keys_present PASSED            [  9%]
+tests/test_batch.py::TestMPLS::test_score_shape PASSED                   [  9%]
+tests/test_batch.py::TestDescriptors::test_output_shape PASSED           [ 10%]
+tests/test_batch.py::TestDescriptors::test_no_nan_in_output PASSED       [ 11%]
+tests/test_batch.py::TestBuildRelTime::test_output_is_numeric PASSED     [ 12%]
+tests/test_batch.py::TestBuildRelTime::test_monotone_per_batch PASSED    [ 12%]
+tests/test_calc.py::TestValidateInputs::test_rejects_list_input PASSED   [ 13%]
+tests/test_calc.py::TestValidateInputs::test_rejects_invalid_mcs PASSED  [ 14%]
+tests/test_calc.py::TestValidateInputs::test_rejects_A_zero PASSED       [ 15%]
+tests/test_calc.py::TestValidateInputs::test_rejects_A_exceeds_rank PASSED [ 15%]
+tests/test_calc.py::TestValidateInputs::test_rejects_duplicate_obs_ids PASSED [ 16%]
+tests/test_calc.py::TestValidateInputs::test_rejects_no_common_obs PASSED [ 17%]
+tests/test_calc.py::TestValidateInputs::test_reorders_Y_to_match_X PASSED [ 18%]
+tests/test_calc.py::TestValidateInputs::test_drops_obs_missing_in_Y PASSED [ 18%]
+tests/test_calc.py::TestValidateInputs::test_numpy_row_mismatch_raises PASSED [ 19%]
+tests/test_calc.py::TestHelpers::test_extract_array_from_ndarray PASSED  [ 20%]
+tests/test_calc.py::TestHelpers::test_extract_array_from_dataframe PASSED [ 21%]
+tests/test_calc.py::TestHelpers::test_meancenterscale_autoscale PASSED   [ 21%]
+tests/test_calc.py::TestHelpers::test_meancenterscale_center_only PASSED [ 22%]
+tests/test_calc.py::TestHelpers::test_meancenterscale_false PASSED       [ 23%]
+tests/test_calc.py::TestHelpers::test_calc_r2_range PASSED               [ 24%]
+tests/test_calc.py::TestHelpers::test_Ab_btbinv_no_missing PASSED        [ 24%]
+tests/test_calc.py::TestHelpers::test_clean_empty_rows_removes_all_nan PASSED [ 25%]
+tests/test_calc.py::TestHelpers::test_clean_low_variances_removes_constants PASSED [ 26%]
+tests/test_calc.py::TestHelpers::test_cat_2_matrix_shape PASSED          [ 27%]
+tests/test_calc.py::TestStatFunctions::test_f99_gt_f95 PASSED            [ 27%]
+tests/test_calc.py::TestStatFunctions::test_f_values_positive PASSED     [ 28%]
+tests/test_calc.py::TestStatFunctions::test_spe_ci_returns_two_limits PASSED [ 29%]
+tests/test_calc.py::TestStatFunctions::test_scores_conf_int_monotone PASSED [ 30%]
+tests/test_calc.py::TestPCA::test_model_keys_present PASSED              [ 30%]
+tests/test_calc.py::TestPCA::test_score_shape PASSED                     [ 31%]
+tests/test_calc.py::TestPCA::test_loading_shape PASSED                   [ 32%]
+tests/test_calc.py::TestPCA::test_loadings_orthonormal FAILED            [ 33%]
+tests/test_calc.py::TestPCA::test_r2x_in_range PASSED                    [ 33%]
+tests/test_calc.py::TestPCA::test_r2xpv_in_range PASSED                  [ 34%]
+tests/test_calc.py::TestPCA::test_reconstruction_residual PASSED         [ 35%]
+tests/test_calc.py::TestPCA::test_t2_shape PASSED                        [ 36%]
+tests/test_calc.py::TestPCA::test_spe_shape PASSED                       [ 36%]
+tests/test_calc.py::TestPCA::test_cross_val_produces_q2 PASSED           [ 37%]
+tests/test_calc.py::TestPCA::test_pca_pred_training_scores FAILED        [ 38%]
+tests/test_calc.py::TestPCA::test_pca_pred_keys PASSED                   [ 39%]
+tests/test_calc.py::TestPCA::test_pca_pred_xhat_shape PASSED             [ 39%]
+tests/test_calc.py::TestPCA::test_type_flag PASSED                       [ 40%]
+tests/test_calc.py::TestPLS::test_model_keys_present PASSED              [ 41%]
+tests/test_calc.py::TestPLS::test_score_shape PASSED                     [ 42%]
+tests/test_calc.py::TestPLS::test_loading_shapes PASSED                  [ 42%]
+tests/test_calc.py::TestPLS::test_spex_spey_shapes PASSED                [ 43%]
+tests/test_calc.py::TestPLS::test_r2x_r2y_in_range PASSED                [ 44%]
+tests/test_calc.py::TestPLS::test_cross_val_produces_q2Y PASSED          [ 45%]
+tests/test_calc.py::TestPLS::test_cross_val_produces_q2X PASSED          [ 45%]
+tests/test_calc.py::TestPLS::test_q2Y_leq_r2y PASSED                     [ 46%]
+tests/test_calc.py::TestPLS::test_cca_flag_adds_keys PASSED              [ 47%]
+tests/test_calc.py::TestPLS::test_pls_pred_yhat_shape PASSED             [ 48%]
+tests/test_calc.py::TestPLS::test_pls_pred_training_roundtrip PASSED     [ 48%]
+tests/test_calc.py::TestPLS::test_type_flag PASSED                       [ 49%]
+tests/test_calc.py::TestDiagnostics::test_hott2_training_shape PASSED    [ 50%]
+tests/test_calc.py::TestDiagnostics::test_hott2_matches_stored_T2 PASSED [ 51%]
+tests/test_calc.py::TestDiagnostics::test_hott2_with_Xnew FAILED         [ 51%]
+tests/test_calc.py::TestDiagnostics::test_spe_training_shape PASSED      [ 52%]
+tests/test_calc.py::TestDiagnostics::test_contributions_scores_shape PASSED [ 53%]
+tests/test_calc.py::TestDiagnostics::test_contributions_spe_shape PASSED [ 54%]
+tests/test_calc.py::TestDiagnostics::test_contributions_ht2_shape PASSED [ 54%]
+tests/test_calc.py::TestMBPLS::test_model_keys_present PASSED            [ 55%]
+tests/test_calc.py::TestMBPLS::test_r2pbX_shape PASSED                   [ 56%]
+tests/test_calc.py::TestMBPLS::test_score_shape PASSED                   [ 57%]
+tests/test_calc.py::TestLPLS::test_model_keys_present PASSED             [ 57%]
+tests/test_calc.py::TestLPLS::test_type_flag PASSED                      [ 58%]
+tests/test_calc.py::TestLPLS::test_score_shape PASSED                    [ 59%]
+tests/test_calc.py::TestLPLS::test_lpls_pred_shape PASSED                [ 60%]
+tests/test_calc.py::TestJRPLS::test_model_keys_present PASSED            [ 60%]
+tests/test_calc.py::TestJRPLS::test_type_flag PASSED                     [ 61%]
+tests/test_calc.py::TestJRPLS::test_jrpls_pred_shape PASSED              [ 62%]
+tests/test_calc.py::TestTPLS::test_model_keys_present PASSED             [ 63%]
+tests/test_calc.py::TestTPLS::test_type_flag PASSED                      [ 63%]
+tests/test_calc.py::TestTPLS::test_tpls_pred_shape PASSED                [ 64%]
+tests/test_calc.py::TestJYPLS::test_model_keys_present PASSED            [ 65%]
+tests/test_calc.py::TestJYPLS::test_type_flag PASSED                     [ 66%]
+tests/test_calc.py::TestJYPLS::test_jypls_pred_shape PASSED              [ 66%]
+tests/test_calc.py::TestLWPLS::test_output_is_array PASSED               [ 67%]
+tests/test_calc.py::TestLWPLS::test_output_numeric PASSED                [ 68%]
+tests/test_calc.py::TestBootstrapPLS::test_bootstrap_returns_list PASSED [ 69%]
+tests/test_calc.py::TestBootstrapPLS::test_bootstrap_each_element_is_pls_dict PASSED [ 69%]
+tests/test_calc.py::TestBootstrapPLS::test_bootstrap_pred_returns_list XFAIL [ 70%]
+tests/test_calc.py::TestBootstrapPLS::test_bootstrap_pred_quantile_count XFAIL [ 71%]
+tests/test_calc.py::TestBootstrapPLS::test_bootstrap_pred_quantile_shape XFAIL [ 72%]
+tests/test_calc.py::TestVarimax::test_rotated_loadings_shape PASSED      [ 72%]
+tests/test_calc.py::TestVarimax::test_r2_total_preserved PASSED          [ 73%]
+tests/test_calc.py::TestSpectra::test_snv_shape PASSED                   [ 74%]
+tests/test_calc.py::TestSpectra::test_snv_row_mean_zero PASSED           [ 75%]
+tests/test_calc.py::TestSpectra::test_snv_row_std_one PASSED             [ 75%]
+tests/test_calc.py::TestSpectra::test_savgol_shape PASSED                [ 76%]
+tests/test_calc.py::TestSpectra::test_msc_shape PASSED                   [ 77%]
+tests/test_calc.py::TestSpectra::test_mean_center_shape PASSED           [ 78%]
+tests/test_calc.py::TestSpectra::test_autoscale_shape PASSED             [ 78%]
+tests/test_calc.py::TestSpectra::test_baseline_correction_shape PASSED   [ 79%]
+tests/test_calc.py::TestCCA::test_returns_tuple_of_three PASSED          [ 80%]
+tests/test_calc.py::TestCCA::test_weight_vector_shapes PASSED            [ 81%]
+tests/test_calc.py::TestCCA::test_weights_unit_norm XFAIL (cca() ret...) [ 81%]
+tests/test_calc.py::TestCCA::test_correlation_in_range XFAIL (cca() ...) [ 82%]
+tests/test_calc.py::TestBuildPolynomial::test_returns_model PASSED       [ 83%]
+tests/test_calc.py::TestBuildPolynomial::test_prediction_shape PASSED    [ 84%]
+tests/test_calc.py::TestUtilities::test_unique_preserves_order PASSED    [ 84%]
+tests/test_calc.py::TestUtilities::test_reconcile_rows_common_only PASSED [ 85%]
+tests/test_calc.py::TestUtilities::test_reconcile_rows_to_columns PASSED [ 86%]
+tests/test_calc.py::TestUtilities::test_hott2_with_Tnew PASSED           [ 87%]
+tests/test_plots.py::TestLVLabels::test_pca_prefix PASSED                [ 87%]
+tests/test_plots.py::TestLVLabels::test_pls_prefix PASSED                [ 88%]
+tests/test_plots.py::TestLVLabels::test_length_equals_A PASSED           [ 89%]
+tests/test_plots.py::TestVarLabels::test_uses_varidX_when_present PASSED [ 90%]
+tests/test_plots.py::TestVarLabels::test_fallback_format PASSED          [ 90%]
+tests/test_plots.py::TestVarLabels::test_yvar_uses_varidY PASSED         [ 91%]
+tests/test_plots.py::TestVarLabels::test_yvar_fallback PASSED            [ 92%]
+tests/test_plots.py::TestTimestr::test_returns_string PASSED             [ 93%]
+tests/test_plots.py::TestTimestr::test_exact_length PASSED               [ 93%]
+tests/test_plots.py::TestTimestr::test_all_digits PASSED                 [ 94%]
+tests/test_plots.py::TestMakePalette::test_length PASSED                 [ 95%]
+tests/test_plots.py::TestMakePalette::test_hex_format PASSED             [ 96%]
+tests/test_plots.py::TestMaskByClass::test_filters_correctly PASSED      [ 96%]
+tests/test_plots.py::TestMaskByClass::test_empty_class PASSED            [ 97%]
+tests/test_plots.py::TestResolveLplsSpace::test_lpls_zspace_false_returns_dict PASSED [ 98%]
+tests/test_plots.py::TestResolveLplsSpace::test_lpls_sets_Ws_to_Ss PASSED [ 99%]
+tests/test_plots.py::TestResolveLplsSpace::test_tpls_zspace_true_uses_varidZ PASSED [100%]
+
+=================================== FAILURES ===================================
+______________________ TestPCA.test_loadings_orthonormal _______________________
+
+self = <test_calc.TestPCA object at 0x758e95880510>
+pca_model = {'P': array([[ 0.4837139 , -0.14078027, -0.53523531],
+       [ 0.49640422, -0.12621187, -0.16473279],
+       [ 0.47571...44068e+00, 3.18679269e+00, 3.06229328e+00,
+       2.87042042e+00, 3.03283179e+00]), 'T2_lim95': 7.939762549663908, ...}
+
+    def test_loadings_orthonormal(self, pca_model):
+        P = pca_model["P"]
+>       np.testing.assert_allclose(P.T @ P, np.eye(3), atol=1e-8)
+E       AssertionError: 
+E       Not equal to tolerance rtol=1e-07, atol=1e-08
+E       
+E       Mismatched elements: 6 / 9 (66.7%)
+E       First 5 mismatches are at indices:
+E        [0, 1]: -0.0002729325839863333 (ACTUAL), 0.0 (DESIRED)
+E        [0, 2]: 0.005797760374946225 (ACTUAL), 0.0 (DESIRED)
+E        [1, 0]: -0.0002729325839863333 (ACTUAL), 0.0 (DESIRED)
+E        [1, 2]: -0.00032219354619933725 (ACTUAL), 0.0 (DESIRED)
+E        [2, 0]: 0.005797760374946225 (ACTUAL), 0.0 (DESIRED)
+E       Max absolute difference among violations: 0.00579776
+E       Max relative difference among violations: inf
+E        ACTUAL: array([[ 1.000000e+00, -2.729326e-04,  5.797760e-03],
+E              [-2.729326e-04,  1.000000e+00, -3.221935e-04],
+E              [ 5.797760e-03, -3.221935e-04,  1.000000e+00]])
+E        DESIRED: array([[1., 0., 0.],
+E              [0., 1., 0.],
+E              [0., 0., 1.]])
+
+tests/test_calc.py:209: AssertionError
+____________________ TestPCA.test_pca_pred_training_scores _____________________
+
+self = <test_calc.TestPCA object at 0x758e95f0b020>
+pca_model = {'P': array([[ 0.4837139 , -0.14078027, -0.53523531],
+       [ 0.49640422, -0.12621187, -0.16473279],
+       [ 0.47571...44068e+00, 3.18679269e+00, 3.06229328e+00,
+       2.87042042e+00, 3.03283179e+00]), 'T2_lim95': 7.939762549663908, ...}
+cars_features =     Car Number  Cylinders  Displacement  Horsepower  Model Year  Weight
+0         Car1          4         122.0       ...9.0          82    2625
+405     Car406          4         119.0        82.0          82    2720
+
+[406 rows x 6 columns]
+
+    def test_pca_pred_training_scores(self, pca_model, cars_features):
+        pred = phi.pca_pred(cars_features, pca_model)
+>       np.testing.assert_allclose(pred["Tnew"], pca_model["T"], atol=1e-6)
+E       AssertionError: 
+E       Not equal to tolerance rtol=1e-07, atol=1e-06
+E       
+E       Mismatched elements: 1186 / 1218 (97.4%)
+E       First 5 mismatches are at indices:
+E        [0, 0]: -1.5162126371584899 (ACTUAL), -1.5140284603073775 (DESIRED)
+E        [0, 1]: -0.7122234228762585 (ACTUAL), -0.7123334033661242 (DESIRED)
+E        [0, 2]: 0.34319939825915646 (ACTUAL), 0.34318669929690826 (DESIRED)
+E        [1, 0]: -0.13424944568905706 (ACTUAL), -0.13107392866125847 (DESIRED)
+E        [1, 1]: 1.680813651944573 (ACTUAL), 1.6806125549508075 (DESIRED)
+E       Max absolute difference among violations: 0.99074394
+E       Max relative difference among violations: 14.71507779
+E        ACTUAL: array([[-1.516213, -0.712223,  0.343199],
+E              [-0.134249,  1.680814,  0.62684 ],
+E              [-0.820831,  1.826498,  0.096775],...
+E        DESIRED: array([[-1.514028, -0.712333,  0.343187],
+E              [-0.131074,  1.680613,  0.626821],
+E              [-0.820768,  1.826467,  0.096775],...
+
+tests/test_calc.py:254: AssertionError
+_____________________ TestDiagnostics.test_hott2_with_Xnew _____________________
+
+self = <test_calc.TestDiagnostics object at 0x758e95880b00>
+pca_model = {'P': array([[ 0.4837139 , -0.14078027, -0.53523531],
+       [ 0.49640422, -0.12621187, -0.16473279],
+       [ 0.47571...44068e+00, 3.18679269e+00, 3.06229328e+00,
+       2.87042042e+00, 3.03283179e+00]), 'T2_lim95': 7.939762549663908, ...}
+cars_features =     Car Number  Cylinders  Displacement  Horsepower  Model Year  Weight
+0         Car1          4         122.0       ...9.0          82    2625
+405     Car406          4         119.0        82.0          82    2720
+
+[406 rows x 6 columns]
+
+    def test_hott2_with_Xnew(self, pca_model, cars_features):
+        result = phi.hott2(pca_model, Xnew=cars_features)
+        assert result.shape == (cars_features.shape[0],)
+        # For complete rows, should match stored T2
+        X = np.array(cars_features.values[:, 1:]).astype(float)
+        X_scaled = (X - pca_model["mx"]) / pca_model["sx"]
+        complete_rows = ~np.any(np.isnan(X_scaled), axis=1)
+>       np.testing.assert_allclose(
+            result[complete_rows], pca_model["T2"][complete_rows], rtol=1e-5
+        )
+E       AssertionError: 
+E       Not equal to tolerance rtol=1e-05, atol=0
+E       
+E       Mismatched elements: 390 / 400 (97.5%)
+E       First 5 mismatches are at indices:
+E        [0]: 1.9427416707481306 (ACTUAL), 1.94117089712485 (DESIRED)
+E        [1]: 5.962598648220281 (ACTUAL), 5.96141086896073 (DESIRED)
+E        [2]: 4.319025729870558 (ACTUAL), 4.318859408314034 (DESIRED)
+E        [3]: 4.573040416410987 (ACTUAL), 4.57435745014067 (DESIRED)
+E        [4]: 2.0665370157987226 (ACTUAL), 2.066316893673383 (DESIRED)
+E       Max absolute difference among violations: 0.01642856
+E       Max relative difference among violations: 0.00120825
+E        ACTUAL: array([1.942742e+00, 5.962599e+00, 4.319026e+00, 4.573040e+00,
+E              2.066537e+00, 3.394639e+00, 7.469497e-01, 1.093177e+00,
+E              4.638636e-01, 1.827976e+00, 2.132687e+00, 9.210282e-01,...
+E        DESIRED: array([1.941171e+00, 5.961411e+00, 4.318859e+00, 4.574357e+00,
+E              2.066317e+00, 3.395984e+00, 7.463588e-01, 1.092267e+00,
+E              4.633332e-01, 1.829810e+00, 2.133543e+00, 9.212580e-01,...
+
+tests/test_calc.py:350: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_calc.py::TestPCA::test_loadings_orthonormal - AssertionError: 
+FAILED tests/test_calc.py::TestPCA::test_pca_pred_training_scores - Assertion...
+FAILED tests/test_calc.py::TestDiagnostics::test_hott2_with_Xnew - AssertionE...
+=================== 3 failed, 125 passed, 5 xfailed in 8.06s ===================
