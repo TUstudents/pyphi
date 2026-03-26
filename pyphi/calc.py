@@ -839,6 +839,7 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
         if md_algorithm == 'nipals':
              if not shush:
                  print('phi.pca using NIPALS executed on: ' + str(datetime.datetime.now()))
+             X_mcs_with_nan = X_.copy()  # preserve NaN for p2mp T recomputation
              X_, dummy = n2z(X_)
              epsilon = 1E-10
              maxit = 5000
@@ -884,10 +885,30 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
                  else:
                      numIT = np.hstack((numIT, num_it))
                      
+             # Re-orthonormalize P via QR (fixes off-diagonal P.T @ P drift from NIPALS)
+             Q, R = np.linalg.qr(P)
+             signs = np.sign(np.diag(R))
+             signs[signs == 0] = 1
+             P = Q * signs
+             # Recompute T using the same p2mp projection as pca_pred so that
+             # pca_pred(X_train, model) reproduces model["T"] exactly.
+             T = np.zeros((X_mcs_with_nan.shape[0], A))
+             X_nz, _ = n2z(X_mcs_with_nan)
+             for _i in range(X_mcs_with_nan.shape[0]):
+                 row_mask = not_Xmiss[[_i], :]
+                 tempP = P * row_mask.T
+                 PTP = tempP.T @ tempP
+                 rhs = tempP.T @ X_nz[[_i], :].T
+                 try:
+                     t_i, _, _, _ = np.linalg.lstsq(PTP, rhs, rcond=None)
+                 except np.linalg.LinAlgError:
+                     t_i = np.linalg.pinv(PTP) @ rhs
+                 T[_i, :] = t_i.ravel()
+
              r2, r2pv = _r2_cumulative_to_per_component(r2, r2pv, A)
              eigs = np.var(T, axis=0)
              r2xc = np.cumsum(r2)
-             if not shush:               
+             if not shush:
                  print('--------------------------------------------------------------')
                  print('PC #      Eig        R2X       sum(R2X) ')
                  if A > 1:
@@ -895,8 +916,8 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
                          print("PC #"+str(a+1)+":   {:8.3f}    {:.3f}     {:.3f}".format(eigs[a], r2[a], r2xc[a]))
                  else:
                      print("PC #1:   {:8.3f}    {:.3f}     {:.3f}".format(eigs[0], r2, r2xc[0]))
-                 print('--------------------------------------------------------------')      
-        
+                 print('--------------------------------------------------------------')
+
              var_t = (T.T @ T) / T.shape[0]
              pca_obj = {'T':T, 'P':P, 'r2x':r2, 'r2xpv':r2pv, 'mx':x_mean, 'sx':x_std, 'var_t':var_t}    
              if not isinstance(obsidX, bool):
