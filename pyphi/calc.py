@@ -839,6 +839,7 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
         if md_algorithm == 'nipals':
              if not shush:
                  print('phi.pca using NIPALS executed on: ' + str(datetime.datetime.now()))
+             X_mcs_with_nan = X_.copy()  # preserve NaN for p2mp T recomputation
              X_, dummy = n2z(X_)
              epsilon = 1E-10
              maxit = 5000
@@ -884,10 +885,30 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
                  else:
                      numIT = np.hstack((numIT, num_it))
                      
+             # Re-orthonormalize P via QR (fixes off-diagonal P.T @ P drift from NIPALS)
+             Q, R = np.linalg.qr(P)
+             signs = np.sign(np.diag(R))
+             signs[signs == 0] = 1
+             P = Q * signs
+             # Recompute T using the same p2mp projection as pca_pred so that
+             # pca_pred(X_train, model) reproduces model["T"] exactly.
+             T = np.zeros((X_mcs_with_nan.shape[0], A))
+             X_nz, _ = n2z(X_mcs_with_nan)
+             for _i in range(X_mcs_with_nan.shape[0]):
+                 row_mask = not_Xmiss[[_i], :]
+                 tempP = P * row_mask.T
+                 PTP = tempP.T @ tempP
+                 rhs = tempP.T @ X_nz[[_i], :].T
+                 try:
+                     t_i, _, _, _ = np.linalg.lstsq(PTP, rhs, rcond=None)
+                 except np.linalg.LinAlgError:
+                     t_i = np.linalg.pinv(PTP) @ rhs
+                 T[_i, :] = t_i.ravel()
+
              r2, r2pv = _r2_cumulative_to_per_component(r2, r2pv, A)
              eigs = np.var(T, axis=0)
              r2xc = np.cumsum(r2)
-             if not shush:               
+             if not shush:
                  print('--------------------------------------------------------------')
                  print('PC #      Eig        R2X       sum(R2X) ')
                  if A > 1:
@@ -895,8 +916,8 @@ def pca_(X, A, *, mcs=True, md_algorithm='nipals', force_nipals=True, shush=Fals
                          print("PC #"+str(a+1)+":   {:8.3f}    {:.3f}     {:.3f}".format(eigs[a], r2[a], r2xc[a]))
                  else:
                      print("PC #1:   {:8.3f}    {:.3f}     {:.3f}".format(eigs[0], r2, r2xc[0]))
-                 print('--------------------------------------------------------------')      
-        
+                 print('--------------------------------------------------------------')
+
              var_t = (T.T @ T) / T.shape[0]
              pca_obj = {'T':T, 'P':P, 'r2x':r2, 'r2xpv':r2pv, 'mx':x_mean, 'sx':x_std, 'var_t':var_t}    
              if not isinstance(obsidX, bool):
@@ -2536,29 +2557,18 @@ def bootstrap_pls_pred(X_new, bootstrap_pls_obj, quantiles=[0.025, 0.975]):
             alpha (float): Confidence level for prediction intervals. Default ``0.95``.
 
         Returns:
-            dict: Prediction results with keys:
-
-                - ``Yhat`` (ndarray): Mean predicted Y (n_new × n_y).
-                - ``Yhat_lb`` (ndarray): Lower bound of prediction interval.
-                - ``Yhat_ub`` (ndarray): Upper bound of prediction interval.
-                - ``Yhat_std`` (ndarray): Std dev of bootstrap predictions.
+            list: One array per quantile, each with shape ``(n_y,)`` — the quantile
+                of the mean predicted Y across bootstrap models, per Y variable.
     """
     for q in quantiles:
         if q >= 1 or q <= 0:
             raise ValueError("Quantiles must be between zero and one")
-    means = []; sds = []
-    for pls_obj in bootstrap_pls_obj:
-        means.append(pls_pred(X_new, pls_obj)["Yhat"])
-        sds.append(np.sqrt(pls_obj["speY"].mean()))
-    means = np.array(means).squeeze()
-    sds = np.array(sds)
-    dist = norm(means, sds[:, None])
-    ppf = []
-    for q in quantiles:
-        def cdf(x):
-            return dist.cdf(x).mean(axis=0) - np.ones_like(x)*q
-        ppf.append(fsolve(cdf, means.mean(axis=0)))
-    return ppf
+    # Collect mean Y prediction (over obs) from each bootstrap model → (n_bootstrap, n_y)
+    all_preds = np.array([
+        pls_pred(X_new, obj)["Yhat"].mean(axis=0)
+        for obj in bootstrap_pls_obj
+    ])
+    return [np.quantile(all_preds, q, axis=0) for q in quantiles]
 
 # =============================================================================
 # Pyomo utilities
@@ -4592,14 +4602,24 @@ def cca(X, Y, tol=1e-6, max_iter=1000):
                 - ``Pcv`` (ndarray): Covariant loadings (predictive loadings in OPLS sense).
                 - ``Wcv`` (ndarray): Covariant weights.
     """
+    # Drop rows with NaN so covariance matrices are finite
+    valid = np.all(np.isfinite(X), axis=1) & np.all(np.isfinite(Y), axis=1)
+    X = X[valid]; Y = Y[valid]
     X = X - np.mean(X, axis=0); Y = Y - np.mean(Y, axis=0)
     Sigma_XX = X.T @ X; Sigma_YY = Y.T @ Y; Sigma_XY = X.T @ Y
     w_x = np.random.rand(X.shape[1]); w_y = np.random.rand(Y.shape[1])
     w_x /= np.linalg.norm(w_x); w_y /= np.linalg.norm(w_y)
+    correlation = 0.0
     for iteration in range(max_iter):
         w_x_old = w_x.copy(); w_y_old = w_y.copy()
-        w_x = np.linalg.solve(Sigma_XX, Sigma_XY @ w_y); w_x /= np.linalg.norm(w_x)
-        w_y = np.linalg.solve(Sigma_YY, Sigma_XY.T @ w_x); w_y /= np.linalg.norm(w_y)
+        w_x_new = np.linalg.lstsq(Sigma_XX, Sigma_XY @ w_y, rcond=None)[0]
+        nrm = np.linalg.norm(w_x_new)
+        if nrm < 1e-12: break
+        w_x = w_x_new / nrm
+        w_y_new = np.linalg.lstsq(Sigma_YY, Sigma_XY.T @ w_x, rcond=None)[0]
+        nrm = np.linalg.norm(w_y_new)
+        if nrm < 1e-12: break
+        w_y = w_y_new / nrm
         correlation = w_x.T @ Sigma_XY @ w_y
         if np.linalg.norm(w_x - w_x_old) < tol and np.linalg.norm(w_y - w_y_old) < tol:
             break
@@ -4607,16 +4627,25 @@ def cca(X, Y, tol=1e-6, max_iter=1000):
 
 def cca_multi(X, Y, num_components=1, tol=1e-6, max_iter=1000):
     """CCA with multiple canonical variates."""
+    valid = np.all(np.isfinite(X), axis=1) & np.all(np.isfinite(Y), axis=1)
+    X = X[valid]; Y = Y[valid]
     X = X - np.mean(X, axis=0); Y = Y - np.mean(Y, axis=0)
     correlations = []; W_X = []; W_Y = []
     for component in range(num_components):
         Sigma_XX = X.T @ X; Sigma_YY = Y.T @ Y; Sigma_XY = X.T @ Y
         w_x = np.random.rand(X.shape[1]); w_y = np.random.rand(Y.shape[1])
         w_x /= np.linalg.norm(w_x); w_y /= np.linalg.norm(w_y)
+        correlation = 0.0
         for iteration in range(max_iter):
             w_x_old = w_x.copy(); w_y_old = w_y.copy()
-            w_x = np.linalg.solve(Sigma_XX, Sigma_XY @ w_y); w_x /= np.linalg.norm(w_x)
-            w_y = np.linalg.solve(Sigma_YY, Sigma_XY.T @ w_x); w_y /= np.linalg.norm(w_y)
+            w_x_new = np.linalg.lstsq(Sigma_XX, Sigma_XY @ w_y, rcond=None)[0]
+            nrm = np.linalg.norm(w_x_new)
+            if nrm < 1e-12: break
+            w_x = w_x_new / nrm
+            w_y_new = np.linalg.lstsq(Sigma_YY, Sigma_XY.T @ w_x, rcond=None)[0]
+            nrm = np.linalg.norm(w_y_new)
+            if nrm < 1e-12: break
+            w_y = w_y_new / nrm
             correlation = w_x.T @ Sigma_XY @ w_y
             if np.linalg.norm(w_x - w_x_old) < tol and np.linalg.norm(w_y - w_y_old) < tol:
                 break
