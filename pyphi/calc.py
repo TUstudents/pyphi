@@ -2557,29 +2557,18 @@ def bootstrap_pls_pred(X_new, bootstrap_pls_obj, quantiles=[0.025, 0.975]):
             alpha (float): Confidence level for prediction intervals. Default ``0.95``.
 
         Returns:
-            dict: Prediction results with keys:
-
-                - ``Yhat`` (ndarray): Mean predicted Y (n_new × n_y).
-                - ``Yhat_lb`` (ndarray): Lower bound of prediction interval.
-                - ``Yhat_ub`` (ndarray): Upper bound of prediction interval.
-                - ``Yhat_std`` (ndarray): Std dev of bootstrap predictions.
+            list: One array per quantile, each with shape ``(n_y,)`` — the quantile
+                of the mean predicted Y across bootstrap models, per Y variable.
     """
     for q in quantiles:
         if q >= 1 or q <= 0:
             raise ValueError("Quantiles must be between zero and one")
-    means = []; sds = []
-    for pls_obj in bootstrap_pls_obj:
-        means.append(pls_pred(X_new, pls_obj)["Yhat"])
-        sds.append(np.sqrt(pls_obj["speY"].mean()))
-    means = np.array(means).squeeze()
-    sds = np.array(sds)
-    dist = norm(means, sds[:, None])
-    ppf = []
-    for q in quantiles:
-        def cdf(x):
-            return dist.cdf(x).mean(axis=0) - np.ones_like(x)*q
-        ppf.append(fsolve(cdf, means.mean(axis=0)))
-    return ppf
+    # Collect mean Y prediction (over obs) from each bootstrap model → (n_bootstrap, n_y)
+    all_preds = np.array([
+        pls_pred(X_new, obj)["Yhat"].mean(axis=0)
+        for obj in bootstrap_pls_obj
+    ])
+    return [np.quantile(all_preds, q, axis=0) for q in quantiles]
 
 # =============================================================================
 # Pyomo utilities
