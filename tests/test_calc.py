@@ -204,7 +204,6 @@ class TestPCA:
         n_vars = cars_features.shape[1] - 1  # subtract obs-ID column
         assert pca_model["P"].shape == (n_vars, 3)
 
-    @pytest.mark.xfail(strict=True, reason="NIPALS loadings not exactly orthonormal (off-diagonal up to ~0.006) — known algorithm precision bug")
     def test_loadings_orthonormal(self, pca_model):
         P = pca_model["P"]
         np.testing.assert_allclose(P.T @ P, np.eye(3), atol=1e-8)
@@ -250,7 +249,6 @@ class TestPCA:
         assert np.all(np.isfinite(q2))
         assert np.all(q2 <= 1.0)
 
-    @pytest.mark.xfail(strict=True, reason="pca_pred diverges from stored T for NaN-containing rows — known missing-data bug")
     def test_pca_pred_training_scores(self, pca_model, cars_features):
         pred = phi.pca_pred(cars_features, pca_model)
         np.testing.assert_allclose(pred["Tnew"], pca_model["T"], atol=1e-6)
@@ -342,7 +340,6 @@ class TestDiagnostics:
         result = phi.hott2(pca_model)
         np.testing.assert_allclose(result, pca_model["T2"], rtol=1e-6)
 
-    @pytest.mark.xfail(strict=True, reason="hott2(Xnew=) inherits pca_pred NaN-row divergence bug; ~0.12% error on complete rows")
     def test_hott2_with_Xnew(self, pca_model, cars_features):
         result = phi.hott2(pca_model, Xnew=cars_features)
         assert result.shape == (cars_features.shape[0],)
@@ -511,22 +508,17 @@ class TestBootstrapPLS:
             for key in ("T", "P", "Q"):
                 assert key in model, f"Bootstrap element missing key: {key}"
 
-    @pytest.mark.xfail(reason="bootstrap_pls_pred has a source bug: norm() shape mismatch "
-                              "when bootstrap models were built on DataFrames; "
-                              "pls_pred() also receives wrong input type")
     def test_bootstrap_pred_returns_list(self, bootstrap_result, cars_features):
         X = np.array(cars_features.values[:, 1:]).astype(float)
         result = phi.bootstrap_pls_pred(X, bootstrap_result)
         assert isinstance(result, list)
 
-    @pytest.mark.xfail(reason="bootstrap_pls_pred has a source bug: norm() shape mismatch")
     def test_bootstrap_pred_quantile_count(self, bootstrap_result, cars_features):
         X = np.array(cars_features.values[:, 1:]).astype(float)
         quantiles = [0.025, 0.975]
         result = phi.bootstrap_pls_pred(X, bootstrap_result, quantiles=quantiles)
         assert len(result) == 2
 
-    @pytest.mark.xfail(reason="bootstrap_pls_pred has a source bug: norm() shape mismatch")
     def test_bootstrap_pred_quantile_shape(self, bootstrap_result, cars_features, cars_performance):
         X = np.array(cars_features.values[:, 1:]).astype(float)
         n_y = cars_performance.shape[1] - 1
@@ -626,13 +618,11 @@ class TestCCA:
         assert w_x.shape == (n_x,)
         assert w_y.shape == (n_y,)
 
-    @pytest.mark.xfail(strict=False, reason="cca() returns NaN weights for full-rank standardised inputs — known source bug")
     def test_weights_unit_norm(self, cca_result):
         (_, w_x, w_y), _, _ = cca_result
         np.testing.assert_allclose(np.linalg.norm(w_x), 1.0, atol=1e-6)
         np.testing.assert_allclose(np.linalg.norm(w_y), 1.0, atol=1e-6)
 
-    @pytest.mark.xfail(strict=False, reason="cca() returns NaN correlation for full-rank standardised inputs — known source bug")
     def test_correlation_in_range(self, cca_result):
         (corr, _, _), _, _ = cca_result
         assert -1.0 <= float(corr) <= 1.0
